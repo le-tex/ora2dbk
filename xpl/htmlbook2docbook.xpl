@@ -32,6 +32,7 @@
 
   <p:output port="result" primary="true"/>
 
+  <p:import href="http://xmlcalabash.com/extension/steps/library-1.0.xpl" />
   <p:import href="http://transpect.le-tex.de/xproc-util/file-uri/file-uri.xpl"/>
 
   <p:documentation xmlns="http://www.w3.org/1999/xhtml">
@@ -57,13 +58,13 @@
           </p:input>
           <p:with-option name="attribute-value" select="$json-uri"/>
         </p:add-attribute>
-        <p:http-request/>
+        <p:http-request name="get-json"/>
         <p:for-each name="files-iteration">
           <p:iteration-source select="/c:body/j:json/j:files/j:item[if (normalize-space($file)) then . = $file else true()]"/>
           <p:add-attribute attribute-name="href" match="/*">
             <p:input port="source">
               <p:inline>
-                <c:request method="GET" />
+                <c:request method="GET"/>
               </p:inline>
             </p:input>
             <p:with-option name="attribute-value" select="resolve-uri(., $json-uri)"/>
@@ -76,8 +77,8 @@
               <p:pipe port="current" step="files-iteration"/>
             </p:with-option>
           </p:add-attribute>
-          <p:wrap-sequence wrapper="c:files"/>
         </p:for-each>
+        <p:wrap-sequence wrapper="c:files"/>
       </p:group>    
     </p:when>
     <p:otherwise>
