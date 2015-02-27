@@ -1,0 +1,12 @@
+[.]
+scm = git
+
+[calabash]
+repository = https://subversion.le-tex.de/common/calabash/
+scm = svn
+path = calabash
+
+[xproc-util/file-uri]
+repository = https://subversion.le-tex.de/common/xproc-util/file-uri/
+scm = svn
+path = xproc-util/file-uri

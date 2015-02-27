@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog">
+
+<!--  <rewriteURI uriStartString="http://customers.le-tex.de/generic/book-conversion/" rewritePrefix="../"/>
+-->  
+  <nextCatalog catalog="../xproc-util/file-uri/xmlcatalog/catalog.xml"/>
+  
+</catalog>
