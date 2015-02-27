@@ -58,10 +58,7 @@
             <p:with-option name="attribute-value" select="resolve-uri(., $json-uri)"/>
           </p:add-attribute>
           <p:http-request/>
-          <p:unescape-markup content-type="application/xhtml+xml"/>
-          <!--<p:load>
-            <p:with-option name="href" select="resolve-uri(., $json-uri)"/>
-          </p:load>-->
+          <p:unescape-markup content-type="text/html"/>
         </p:for-each>
         <p:wrap-sequence wrapper="files"/>
       </p:group>    

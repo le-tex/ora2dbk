@@ -8,6 +8,6 @@ Sample invocation:
 
     calabash/calabash.sh xpl/htmlbook2docbook.xpl json=../path/to/atlas.json
 
-The ```json``` option may also be a file: or HTTP URI. It is optional. If it is omitted, a standalone HTMLBook document is expected on the input – if we figure out how to deal with the named character entitities. Maybe we’ll have to preprocess them using validator.nu. 
+The ```json``` option may also be a file: or HTTP URI. It is optional. If it is omitted, a standalone HTMLBook document is expected on the source port – if we figure out how to deal with the named character entitities. Maybe we’ll have to preprocess them using validator.nu. 
 
 The parsing of the files accessed through processing the the JSON should also be parsed from within Calabash using validator.nu, but this isn’t working yet.  
