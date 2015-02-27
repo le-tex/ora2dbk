@@ -3,6 +3,7 @@
   xmlns:p="http://www.w3.org/ns/xproc"
   xmlns:c="http://www.w3.org/ns/xproc-step"
   xmlns:cx="http://xmlcalabash.com/ns/extensions" 
+  xmlns:html="http://www.w3.org/1999/xhtml"
   xmlns:j="http://marklogic.com/json"
   xmlns:letex="http://www.le-tex.de/namespace"
   xmlns:transpect="http://www.le-tex.de/namespace/transpect" 
@@ -14,11 +15,21 @@
     is expected.</p:documentation>
   </p:option>
   
+  <p:option name="file" required="false" select="''">
+    <p:documentation>Optional file from within the files list in the JSON file. Conversion will be restricted to a single file then.</p:documentation>
+  </p:option>
+  
   <p:input port="html" primary="true">
-    <p:documentation>If the json option is not specified, an HTMLBook document is expected here.</p:documentation>
+    <p:documentation>If the json option is not specified, an HTMLBook document is expected here.
+    On second thought, this will only work if we are able to specify validator.nu as the parser.
+    Until we figure that out, use the json invocation.</p:documentation>
     <p:empty/>
   </p:input>
-  
+
+  <p:input port="xsl">
+    <p:document href="../xsl/htmlbook2docbook.xsl"/>
+  </p:input>
+
   <p:output port="result" primary="true"/>
 
   <p:import href="http://transpect.le-tex.de/xproc-util/file-uri/file-uri.xpl"/>
@@ -47,8 +58,8 @@
           <p:with-option name="attribute-value" select="$json-uri"/>
         </p:add-attribute>
         <p:http-request/>
-        <p:for-each>
-          <p:iteration-source select="/c:body/j:json/j:files/j:item[. = 'dedication.html']"/>
+        <p:for-each name="files-iteration">
+          <p:iteration-source select="/c:body/j:json/j:files/j:item[if (normalize-space($file)) then . = $file else true()]"/>
           <p:add-attribute attribute-name="href" match="/*">
             <p:input port="source">
               <p:inline>
@@ -59,14 +70,26 @@
           </p:add-attribute>
           <p:http-request/>
           <p:unescape-markup content-type="text/html"/>
+          <p:filter select="/c:body/html:html/html:body"/>
+          <p:add-attribute match="/*" attribute-name="xml:base">
+            <p:with-option name="attribute-value" select="resolve-uri(., $json-uri)">
+              <p:pipe port="current" step="files-iteration"/>
+            </p:with-option>
+          </p:add-attribute>
+          <p:wrap-sequence wrapper="c:files"/>
         </p:for-each>
-        <p:wrap-sequence wrapper="files"/>
       </p:group>    
     </p:when>
     <p:otherwise>
-      <p:identity/>
+      <p:wrap-sequence wrapper="c:files"/>
     </p:otherwise>
   </p:choose>
 
+  <p:xslt initial-mode="html2dbk">
+    <p:input port="parameters"><p:empty/></p:input>
+    <p:input port="stylesheet">
+      <p:pipe port="xsl" step="process-json"/>
+    </p:input>
+  </p:xslt>  
 
 </p:declare-step>

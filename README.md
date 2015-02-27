@@ -10,4 +10,8 @@ Sample invocation:
 
 The ```json``` option may also be a file: or HTTP URI. It is optional. If it is omitted, a standalone HTMLBook document is expected on the source port – if we figure out how to deal with the named character entitities. Maybe we’ll have to preprocess them using validator.nu. 
 
-The parsing of the files accessed through processing the the JSON should also be parsed from within Calabash using validator.nu, but this isn’t working yet.  
+If you use the json option, you can restrict conversion to a certain item in the JSON’s "files" list by specifying an additional ```file``` option, for example, ```file=dedication.html```.
+
+You can override the default XSLT by importing it and submitting your importing stylesheet to the xsl port.
+
+We’ll output namespaced DocBook (which may or may not be DocBook 5.x – it will probably be DocBook 4.5 in the DocBook namespace) on the result port and DocBook 4.5 on a to-be-implemented dbk4 port. 
