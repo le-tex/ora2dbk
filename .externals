@@ -10,3 +10,8 @@ path = calabash
 repository = https://subversion.le-tex.de/common/xproc-util/file-uri/
 scm = svn
 path = xproc-util/file-uri
+
+[schema/dbk45]
+repository = https://subversion.le-tex.de/common/schema/docbook/4.5/
+scm = svn
+path = schema/dbk45
