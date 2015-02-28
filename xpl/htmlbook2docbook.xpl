@@ -30,7 +30,13 @@
     <p:document href="../xsl/htmlbook2docbook.xsl"/>
   </p:input>
 
-  <p:output port="result" primary="true"/>
+  <p:output port="result" primary="true">
+    <p:pipe port="result" step="html2dbk"/>
+  </p:output>
+
+  <p:output port="parsed-html">
+    <p:pipe port="result" step="read"/>
+  </p:output>
 
   <p:import href="http://xmlcalabash.com/extension/steps/library-1.0.xpl" />
   <p:import href="http://transpect.le-tex.de/xproc-util/file-uri/file-uri.xpl"/>
@@ -40,8 +46,9 @@
       for the JSON parsing.</p>
   </p:documentation>
 
-  <p:choose>
+  <p:choose name="read">
     <p:when test="p:value-available('json')">
+      <p:output port="result" primary="true"/>
       <transpect:file-uri name="file-uri">
         <p:with-option name="filename" select="$json"/>
       </transpect:file-uri>
@@ -64,13 +71,13 @@
           <p:add-attribute attribute-name="href" match="/*">
             <p:input port="source">
               <p:inline>
-                <c:request method="GET"/>
+                <c:request method="GET" charset="UTF-8"/>
               </p:inline>
             </p:input>
             <p:with-option name="attribute-value" select="resolve-uri(., $json-uri)"/>
           </p:add-attribute>
           <p:http-request/>
-          <p:unescape-markup content-type="text/html"/>
+          <p:unescape-markup content-type="text/html" />
           <p:filter select="/c:body/html:html/html:body"/>
           <p:add-attribute match="/*" attribute-name="xml:base">
             <p:with-option name="attribute-value" select="resolve-uri(., $json-uri)">
@@ -79,18 +86,41 @@
           </p:add-attribute>
         </p:for-each>
         <p:wrap-sequence wrapper="c:files"/>
+        <p:add-attribute match="/*" attribute-name="xml:base">
+          <p:with-option name="attribute-value" select="$json-uri"/>
+        </p:add-attribute>
       </p:group>    
     </p:when>
     <p:otherwise>
+      <p:output port="result" primary="true"/>
       <p:wrap-sequence wrapper="c:files"/>
     </p:otherwise>
   </p:choose>
 
-  <p:xslt initial-mode="html2dbk">
+  <p:xslt initial-mode="html2dbk" name="html2dbk">
     <p:input port="parameters"><p:empty/></p:input>
     <p:input port="stylesheet">
       <p:pipe port="xsl" step="process-json"/>
     </p:input>
   </p:xslt>  
+
+  <p:xslt initial-mode="export-chapters" name="export-chapters-xsl">
+    <p:input port="parameters"><p:empty/></p:input>
+    <p:input port="stylesheet">
+      <p:pipe port="xsl" step="process-json"/>
+    </p:input>
+  </p:xslt>  
+  
+  <p:sink/>
+  
+  <p:for-each>
+    <p:iteration-source>
+      <p:pipe port="secondary" step="export-chapters-xsl"/>
+    </p:iteration-source>
+    <p:store method="xml" doctype-public="-//OASIS//DTD DocBook XML V4.5//EN" 
+      doctype-system="http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
+      <p:with-option name="href" select="base-uri()"/>
+    </p:store>
+  </p:for-each>
 
 </p:declare-step>

@@ -6,7 +6,7 @@ We’re not doing this because we’re die-hard DocBook proponents. It’s for G
 
 Sample invocation:
 
-    calabash/calabash.sh xpl/htmlbook2docbook.xpl json=../path/to/atlas.json
+    calabash/calabash.sh -o parsed-html=parsed.xhtml xpl/htmlbook2docbook.xpl json=../path/to/atlas.json
 
 The ```json``` option may also be a file: or HTTP URI. It is optional. If it is omitted, a standalone HTMLBook document is expected on the source port – if we figure out how to deal with the named character entitities. Maybe we’ll have to preprocess them using validator.nu. 
 
