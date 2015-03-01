@@ -9,6 +9,7 @@
   xmlns:letex="http://www.le-tex.de/namespace"
   xmlns:transpect="http://www.le-tex.de/namespace/transpect" 
   xmlns:xi="http://www.w3.org/2001/XInclude"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
   version="1.0"
   name="process-json">
 
@@ -32,12 +33,14 @@
     <p:document href="../xsl/htmlbook2docbook.xsl"/>
   </p:input>
 
-  <p:output port="result" primary="true">
-    <p:pipe port="result" step="html2dbk"/>
-<!--    <p:pipe port="result" step="strip-namespace"/>-->
+  <p:output port="dbk4">
+    <p:pipe port="result" step="dbk4"/>
   </p:output>
-  <p:serialization port="result" doctype-public="-//OASIS//DTD DocBook XML V4.5//EN" 
+  <p:serialization port="dbk4" doctype-public="-//OASIS//DTD DocBook XML V4.5//EN" 
     doctype-system="http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" omit-xml-declaration="false"></p:serialization>
+
+  <p:output port="result" primary="true"/>
+  <p:serialization port="result" indent="true" omit-xml-declaration="false"/>
 
   <p:output port="parsed-html">
     <p:pipe port="result" step="htmltable-normalizer"/>
@@ -159,6 +162,15 @@
     </p:with-option>
   </p:store>
   
+  <transpect:strip-namespaces name="dbk4">
+    <p:documentation>The complete document as DocBook 4.5.</p:documentation>
+    <p:input port="source">
+      <p:pipe port="result" step="html2dbk"/>
+    </p:input>
+  </transpect:strip-namespaces>
+  
+  <p:sink/>
+  
   <p:for-each name="store-chapters">
     <p:iteration-source>
       <p:pipe port="secondary" step="export-chapters-xsl"/>
@@ -171,5 +183,35 @@
       </p:with-option>
     </p:store>
   </p:for-each>
+  
+  <p:xslt name="zip-manifest">
+    <p:input port="parameters"><p:empty/></p:input>
+    <p:input port="source">
+      <p:pipe port="result" step="export-chapters-xsl"/>
+    </p:input>
+    <p:input port="stylesheet">
+      <p:inline>
+        <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="2.0">
+          <xsl:template match="/">
+            <c:zip-manifest>
+              <xsl:apply-templates select="*/@xml:base, //xi:include/@href">
+                <xsl:with-param name="base-uri" select="replace(*/@xml:base, '^(.+/).+$', '$1')" as="xs:string" tunnel="yes"/>
+              </xsl:apply-templates>
+            </c:zip-manifest>
+          </xsl:template>
+          <xsl:template match="@xml:base | @href">
+            <xsl:param name="base-uri" as="xs:string?" tunnel="yes"/>
+            <c:entry name="{if (self::attribute(xml:base)) then replace(., '^.+/', '') else .}" 
+              href="{(self::attribute(xml:base), concat($base-uri, .))[1]}" method="deflated"/>
+          </xsl:template>
+          <xsl:template match="xi:include">
+            <c:entry>
+              <xsl:apply-templates select="@href"/>
+            </c:entry>
+          </xsl:template>
+        </xsl:stylesheet>
+      </p:inline>
+    </p:input>
+  </p:xslt>
 
 </p:declare-step>
