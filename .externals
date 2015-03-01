@@ -15,3 +15,18 @@ path = xproc-util/file-uri
 repository = https://subversion.le-tex.de/common/schema/docbook/4.5/
 scm = svn
 path = schema/dbk45
+
+[html-tables]
+repository = https://subversion.le-tex.de/common/html-tables/lib/
+scm = svn
+path = html-tables
+
+[xslt-util/lengths]
+repository = https://subversion.le-tex.de/common/letex-util/lengths/
+scm = svn
+path = xslt-util/lengths
+
+[html2hub]
+repository = https://subversion.le-tex.de/common/html2hub/lib/
+scm = svn
+path = html2hub

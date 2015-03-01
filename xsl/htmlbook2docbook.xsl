@@ -5,15 +5,22 @@
   xmlns:html="http://www.w3.org/1999/xhtml"
   xmlns:xi="http://www.w3.org/2001/XInclude"
   xmlns:xiout="bogo"
+  xmlns:htmltable="http://www.le-tex.de/namespace/htmltable"
+  xmlns:html2hub = "http://www.le-tex.de/namespace/html2hub"
   xmlns:dbk="http://docbook.org/ns/docbook"
   xmlns="http://docbook.org/ns/docbook"
   exclude-result-prefixes="#all"
   version="2.0">
 
-  <xsl:variable name="common-uri" as="xs:string" select="replace(base-uri(/*), '^(.+/).+$', '$1')"/>
+  <xsl:import href="http://transpect.le-tex.de/html2hub/xsl/tables.xsl"/>
+
+  <xsl:namespace-alias stylesheet-prefix="xiout" result-prefix="xi"/>
+
+  <xsl:variable name="common-uri" as="xs:string" select="replace(base-uri(/*), '^(.+)/.+$', '$1.out/')"/>
 
   <xsl:template match="/" mode="html2dbk">
     <book>
+      <xsl:copy-of select="/*/@xml:base"/>
       <xsl:apply-templates select="c:files/html:body/node()" mode="#current"/>
     </book>
   </xsl:template>
@@ -43,7 +50,13 @@
   </xsl:template>
   <xsl:template match="html:section[@data-type eq 'dedication']/@data-type" mode="html2dbk"/>
   
-  <xsl:template match="html:section[not(@data-type)]" mode="html2dbk">
+  <xsl:template match="html:section[@data-type = ('copyright-page', 'titlepage')]" mode="html2dbk">
+    <appendix role="{@data-type}">
+      <xsl:apply-templates select="@* except @data-type, node()" mode="#current"/>
+    </appendix>
+  </xsl:template>
+  
+  <xsl:template match="html:section" mode="html2dbk">
     <section>
       <xsl:apply-templates select="@*, node()" mode="#current"/>
     </section>
@@ -85,7 +98,8 @@
   </xsl:template>
 
   <xsl:template name="create-para-wrapper-for-inline-content">
-    <xsl:call-template name="create-para-wrapper-for-inline-content"/>
+    <xsl:apply-templates mode="#current"/>
+<!--    <xsl:call-template name="create-para-wrapper-for-inline-content"/>-->
   </xsl:template>
 
   <xsl:template match="html:div[
@@ -128,14 +142,13 @@
     </mediaobject>
   </xsl:template>
 
-  <xsl:template match="html:pre[@data-type eq 'programlisting']" mode="html2dbk">
+  <xsl:template match="html:pre" mode="html2dbk">
     <programlisting>
       <xsl:apply-templates select="@*, node()" mode="#current"/>
     </programlisting>
   </xsl:template>
-  <xsl:template match="html:pre[@data-type eq 'programlisting']/@data-type" mode="html2dbk"/>
 
-  <xsl:template match="html:pre[@data-type eq 'programlisting']/@data-code-language" mode="html2dbk">
+  <xsl:template match="@data-programming-language" mode="html2dbk">
     <xsl:attribute name="language" select="."/>
   </xsl:template>
 
@@ -181,6 +194,12 @@
       <xsl:apply-templates select="@*" mode="#current"/>
       <xsl:call-template name="create-para-wrapper-for-inline-content"/>
     </blockquote>
+  </xsl:template>
+
+  <!-- tables -->
+  
+  <xsl:template match="html:table" mode="html2dbk">
+    <xsl:apply-templates select="." mode="html2hub:default"/>
   </xsl:template>
 
 
@@ -244,34 +263,34 @@
   </xsl:template>
   <xsl:template match="html:span[@data-type eq 'footnote']/@data-type" mode="html2dbk"/>
 
-  <xsl:template match="html:a[not(@data-type)]" mode="html2dbk" priority="-1">
+  <xsl:template match="html:a[@href]" mode="html2dbk">
     <ulink>
       <xsl:apply-templates select="@*, node()" mode="#current"/>
     </ulink>
   </xsl:template>
 
-  <xsl:template match="html:a[not(@data-type)][starts-with(@href, '#')]" mode="html2dbk">
+  <xsl:template match="html:a/@href" mode="html2dbk">
+    <xsl:attribute name="url" select="."/>
+  </xsl:template>
+  
+  <xsl:template match="html:a[not(@data-type)][starts-with(@href, '#')]" mode="html2dbk" priority="2">
     <link>
       <xsl:apply-templates select="@*, node()" mode="#current"/>
     </link>
   </xsl:template>
   
-  <xsl:template match="html:a[not(@data-type)][starts-with(@href, '#')]/@href" mode="html2dbk">
+  <xsl:template match="html:a[not(@data-type)][starts-with(@href, '#')]/@href" mode="html2dbk" priority="2">
     <xsl:attribute name="linkend" select="substring-after(., '#')"/>
   </xsl:template>
-  
-  <xsl:template match="html:a[not(@data-type)]/@href" mode="html2dbk" priority="-1">
-    <xsl:attribute name="url" select="."/>
-  </xsl:template>
 
-  <xsl:template match="html:a[@data-type eq 'xref']" mode="html2dbk">
+  <xsl:template match="html:a[@data-type eq 'xref']" mode="html2dbk" priority="3">
     <xref>
       <xsl:apply-templates select="@*" mode="#current"/>
     </xref>
   </xsl:template>
   <xsl:template match="html:a[@data-type eq 'xref']/@data-type" mode="html2dbk"/>
   
-  <xsl:template match="html:a[@data-type eq 'xref']/@href" mode="html2dbk">
+  <xsl:template match="html:a[@data-type eq 'xref']/@href" mode="html2dbk" priority="3">
     <xsl:attribute name="linkend" select="substring-after(., '#')"/>
   </xsl:template>
 
@@ -345,7 +364,7 @@
   </xsl:template>
   
   <xsl:template match="@id" mode="html2dbk">
-    <xsl:copy/>
+    <xsl:attribute name="xml:id" select="."/>
   </xsl:template>
 
   <!-- catch all -->
@@ -356,6 +375,8 @@
     </xsl:copy>
     <xsl:message select="'html2dbk info, unmapped:', if(. instance of element()) then name() else ."/>
   </xsl:template>
+  
+  <xsl:template match="@*[starts-with(name(), 'data-')]" mode="html2dbk" priority="-2"/>
   
   <xsl:template match="* | @*" mode="html2dbk">
     <xsl:copy copy-namespaces="no">
@@ -380,14 +401,20 @@
     <xsl:sequence select="replace($original-uri, '^(.+)/([^/]+)/(.+)\..+$', '$1/$2.out/$3.xml')"/>
   </xsl:function>
   
-  <xsl:template match="/dbk:book[@xml:base]" mode="export-chapters">
+  <xsl:template match="/*[@xml:base]" mode="export-chapters" priority="2">
     <xsl:copy copy-namespaces="no">
       <xsl:apply-templates select="@*" mode="#current"/>
       <xsl:attribute name="xml:base" select="dbk:export-file-uri(@xml:base)"/>
       <xsl:apply-templates mode="#current"/>
     </xsl:copy>
   </xsl:template>
-  
+
+  <xsl:template match="* | @*" mode="export-chapters">
+    <xsl:copy copy-namespaces="no">
+      <xsl:apply-templates select="@*, node()" mode="#current"/>
+    </xsl:copy>
+  </xsl:template>
+
   <xsl:template match="*[@xml:base]" mode="export-chapters">
     <xsl:variable name="href" select="dbk:export-file-uri(@xml:base)"/>
     <xiout:include href="{substring-after($href, $common-uri)}"/>
@@ -400,7 +427,7 @@
 
   <!-- recursive sections to sect1, sect2, … -->
   <xsl:template match="dbk:section" mode="export-chapters">
-    <xsl:element name="sect{count(ancestor-or-self::section)}">
+    <xsl:element name="sect{count(ancestor-or-self::dbk:section)}">
       <xsl:apply-templates select="@*, node()" mode="#current"/>
     </xsl:element>
   </xsl:template>
