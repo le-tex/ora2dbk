@@ -4,3 +4,4 @@ schema/dbk45
 html-tables
 xslt-util/lengths
 html2hub
+xproc-util/store-debug

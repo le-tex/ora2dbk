@@ -30,3 +30,8 @@ path = xslt-util/lengths
 repository = https://subversion.le-tex.de/common/html2hub/lib/
 scm = svn
 path = html2hub
+
+[xproc-util/store-debug]
+repository = https://subversion.le-tex.de/common/xproc-util/store-debug/
+scm = svn
+path = xproc-util/store-debug

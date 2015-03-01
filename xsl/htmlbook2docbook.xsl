@@ -401,13 +401,6 @@
     <xsl:sequence select="replace($original-uri, '^(.+)/([^/]+)/(.+)\..+$', '$1/$2.out/$3.xml')"/>
   </xsl:function>
   
-  <xsl:template match="/*[@xml:base]" mode="export-chapters" priority="2">
-    <xsl:copy copy-namespaces="no">
-      <xsl:apply-templates select="@*" mode="#current"/>
-      <xsl:attribute name="xml:base" select="dbk:export-file-uri(@xml:base)"/>
-      <xsl:apply-templates mode="#current"/>
-    </xsl:copy>
-  </xsl:template>
 
   <xsl:template match="* | @*" mode="export-chapters">
     <xsl:copy copy-namespaces="no">
@@ -415,14 +408,34 @@
     </xsl:copy>
   </xsl:template>
 
+  <xsl:template match="/*[@xml:base]" mode="export-chapters" priority="2">
+    <xsl:copy copy-namespaces="no">
+      <xsl:apply-templates select="@*" mode="#current"/>
+      <xsl:attribute name="xml:base" select="dbk:export-file-uri(@xml:base)"/>
+      <xsl:apply-templates mode="#current">
+        <xsl:with-param name="top-level-base-uri" as="xs:string" select="@xml:base" tunnel="yes"/>
+      </xsl:apply-templates>
+    </xsl:copy>
+  </xsl:template>
+
   <xsl:template match="*[@xml:base]" mode="export-chapters">
-    <xsl:variable name="href" select="dbk:export-file-uri(@xml:base)"/>
-    <xiout:include href="{substring-after($href, $common-uri)}"/>
-    <xsl:result-document href="{$href}">
-      <xsl:copy>
-        <xsl:apply-templates select="@* except @xml:base, node()" mode="#current"/>  
-      </xsl:copy>
-    </xsl:result-document>
+    <xsl:param name="top-level-base-uri" as="xs:string" tunnel="yes"/>
+    <xsl:choose>
+      <xsl:when test="@xml:base = $top-level-base-uri">
+        <xsl:copy>
+          <xsl:apply-templates select="@* except @xml:base, node()" mode="#current"/>
+        </xsl:copy>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:variable name="href" select="dbk:export-file-uri(@xml:base)"/>
+        <xiout:include href="{substring-after($href, $common-uri)}"/>
+        <xsl:result-document href="{$href}">
+          <xsl:copy>
+            <xsl:apply-templates select="@* except @xml:base, node()" mode="#current"/>
+          </xsl:copy>
+        </xsl:result-document>
+      </xsl:otherwise>
+    </xsl:choose>
   </xsl:template>
 
   <!-- recursive sections to sect1, sect2, … -->
