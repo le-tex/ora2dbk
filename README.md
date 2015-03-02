@@ -39,4 +39,4 @@ The zip file will also contain a file atlas.validation.xml. It contains errors l
     "glossary", "index", "lot", "sect1" or "toc"</c:error> 
 
 When editing atlas.xml, you can paste the XPath ```/book/preface[3]/indexterm[1]``` into an oXygen or another XInclude-aware tool that lets you search for XPath expressions
-in order to jump to the error.
+in order to jump to the error. (On 2nd thought: If you’re using oXygen, you’d use the built-in validation anyway.)
