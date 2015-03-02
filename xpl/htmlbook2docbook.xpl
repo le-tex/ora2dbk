@@ -119,7 +119,7 @@
           <p:with-option name="zip" select="/*/@os-path">
             <p:pipe port="result" step="file-uri"/>
           </p:with-option>
-          <p:with-option name="dest-dir" select="replace(/*/@os-path, '\.zip$', '.tmp/')">
+          <p:with-option name="dest-dir" select="replace(/*/@os-path, '\.zip$', '.dbk/')">
             <p:pipe port="result" step="file-uri"/>
           </p:with-option>
           <p:with-option name="overwrite" select="'yes'" />
