@@ -39,39 +39,45 @@
 
   <xsl:template match="html:section[@data-type eq 'preface']" mode="html2dbk">
     <preface>
-      <xsl:apply-templates select="@* except @data-type, node()" mode="#current"/>
+      <xsl:apply-templates select="@*, node()" mode="#current"/>
     </preface>
   </xsl:template>
+  <xsl:template match="html:section/@data-type[. eq 'preface']" mode="html2dbk"/>
 
   <xsl:template match="html:section[@data-type eq 'introduction']" mode="html2dbk">
     <preface>
-      <xsl:apply-templates select="@* except @data-type, node()" mode="#current"/>
+      <xsl:apply-templates select="@*, node()" mode="#current"/>
     </preface>
   </xsl:template>
+  <xsl:template match="html:section/@data-type[. eq 'introduction']" mode="html2dbk"/>
 
   <xsl:template match="html:section[@data-type eq 'chapter']" mode="html2dbk">
     <chapter>
-      <xsl:apply-templates select="@* except @data-type, node()" mode="#current"/>
+      <xsl:apply-templates select="@*, node()" mode="#current"/>
     </chapter>
   </xsl:template>
+  <xsl:template match="html:section/@data-type[. eq 'chapter']" mode="html2dbk"/>
   
   <xsl:template match="html:section[@data-type eq 'colophon']" mode="html2dbk">
     <colophon>
-      <xsl:apply-templates select="@* except @data-type, node()" mode="#current"/>
+      <xsl:apply-templates select="@*, node()" mode="#current"/>
     </colophon>
   </xsl:template>
+  <xsl:template match="html:section/@data-type[. eq 'colophon']" mode="html2dbk"/>
 
   <xsl:template match="html:section[@data-type eq 'dedication']" mode="html2dbk">
     <dedication>
-      <xsl:apply-templates select="@* except @data-type, node()" mode="#current"/>
+      <xsl:apply-templates select="@*, node()" mode="#current"/>
     </dedication>
   </xsl:template>
+  <xsl:template match="html:section/@data-type[. eq 'dedication']" mode="html2dbk"/>
   
   <xsl:template match="html:section[@data-type = ('copyright-page', 'titlepage')]" mode="html2dbk">
     <appendix role="{@data-type}">
-      <xsl:apply-templates select="@* except @data-type, node()" mode="#current"/>
+      <xsl:apply-templates select="@*, node()" mode="#current"/>
     </appendix>
   </xsl:template>
+  <xsl:template match="html:section/@data-type[. = ('copyright-page', 'titlepage')]" mode="html2dbk"/>
   
   <xsl:template match="html:section" mode="html2dbk">
     <section>
@@ -81,29 +87,32 @@
   
   <xsl:template match="html:section[matches(@data-type, '^sect\d$')]" mode="html2dbk">
     <xsl:element name="{@data-type}">
-      <xsl:apply-templates select="@* except @data-type, node()" mode="#current"/>
+      <xsl:apply-templates select="@*, node()" mode="#current"/>
     </xsl:element>
   </xsl:template>
+  <xsl:template match="html:section[matches(@data-type, '^sect\d$')]/@data-type" mode="html2dbk"/>
   
   <xsl:template match="html:nav[@data-type eq 'toc']" mode="html2dbk">
     <toc>
-      <xsl:apply-templates select="@* except @data-type" mode="#current"/>
+      <xsl:apply-templates select="@*" mode="#current"/>
       <xsl:if test="not(html:*[matches(local-name(), '^h[1-6]$')])">
         <title/>
       </xsl:if>
       <xsl:apply-templates select="node()" mode="#current"/>
     </toc>
   </xsl:template>
+  <xsl:template match="html:nav/@data-type[. eq 'toc']" mode="html2dbk"/>
   
   <xsl:template match="html:section[@data-type eq 'index']" mode="html2dbk">
     <index>
-      <xsl:apply-templates select="@* except @data-type" mode="#current"/>
+      <xsl:apply-templates select="@*" mode="#current"/>
       <xsl:if test="not(html:*[matches(local-name(), '^h[1-6]$')])">
         <title/>
       </xsl:if>
       <xsl:apply-templates select="node()" mode="#current"/>
     </index>
   </xsl:template>
+  <xsl:template match="html:section/@data-type[. eq 'index']" mode="html2dbk"/>
   
   <xsl:template match="html:*[matches(local-name(), '^h[1-6]$')]" mode="html2dbk">
     <title>
@@ -122,9 +131,10 @@
   
   <xsl:template match="html:aside[@data-type eq 'sidebar']" mode="html2dbk">
     <sidebar>
-      <xsl:apply-templates select="@* except @data-type, node()" mode="#current"/>
+      <xsl:apply-templates select="@*, node()" mode="#current"/>
     </sidebar>
   </xsl:template>
+  <xsl:template match="html:aside/@data-type[. eq 'sidebar']" mode="html2dbk"/>
 
   <xsl:variable name="htmlbook-div-types-to-docbook-element" as="xs:string*"
     select="('note', 'warning', 'tip', 'caution', 'important', 'example', 'equation')"/>
@@ -138,6 +148,7 @@
       <xsl:call-template name="create-para-wrapper-for-inline-content"/>
     </xsl:element>
   </xsl:template>
+  <xsl:template match="html:div/@data-type[. = $htmlbook-div-types-to-docbook-element]" mode="html2dbk"/>
 
   <xsl:template name="create-para-wrapper-for-inline-content">
     <xsl:choose>
@@ -176,7 +187,12 @@
   
   <!-- project specific @data-type='cover'? -->
   <xsl:template match="html:figure[@data-type eq 'cover']" mode="html2dbk" priority="3">
-    <xsl:apply-templates select="node()" mode="#current"/>
+    <imageobject>
+      <xsl:apply-templates select="@data-type" mode="#current"/>
+        <imagedata fileref="{html:img/@src}">
+          <xsl:apply-templates select="html:img/@width, html:img/@height" mode="#current"/>
+        </imagedata>
+      </imageobject>
   </xsl:template>
 
   <xsl:template match="html:figcaption" mode="html2dbk">
