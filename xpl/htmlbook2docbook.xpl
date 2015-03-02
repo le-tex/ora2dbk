@@ -131,9 +131,9 @@
           <p:with-option name="active" select="$debug"/>
           <p:with-option name="base-uri" select="$debug-dir-uri"/>
         </letex:store-debug>
-        <cx:message>
+        <!--<cx:message>
           <p:with-option name="message" select="'MMMMMMMMMMMMMMMMM ', resolve-uri(/*/c:file[1]/@name, base-uri(/c:directory))"></p:with-option>
-        </cx:message>
+        </cx:message>-->
         <letex:process-atlas front-end="true" name="recursive-json-processing">
           <p:with-option name="input" select="resolve-uri(/*/c:file[1]/@name, base-uri(/c:directory))"/>
           <p:input port="xsl">
@@ -203,10 +203,6 @@
     <p:add-attribute match="/*" attribute-name="xml:base" name="add-base">
       <p:with-option name="attribute-value" select="$input-uri"/>
     </p:add-attribute>
-
-          <cx:message>
-            <p:with-option name="message" select="'HHHHHHHHHHHHHHHHHHHHHHH ', /*/@xml:base"></p:with-option>
-          </cx:message>
 
     <p:choose name="process-html-collection">
       <p:when test="$front-end = 'true' and not($input-ext = 'zip')">
