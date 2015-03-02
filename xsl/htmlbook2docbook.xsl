@@ -154,13 +154,14 @@
   </xsl:template>
 
   <xsl:template match="html:div[not(@data-type)]" mode="html2dbk">
-    <simplesect>
-      <xsl:apply-templates select="@*" mode="#current"/>
-      <xsl:if test="not(html:*[matches(local-name(), '^h\d$')])">
-        <title/>
-      </xsl:if>
-      <xsl:apply-templates select="node()" mode="#current"/>
-    </simplesect>
+    <xsl:apply-templates select="node()" mode="#current"/>
+  </xsl:template>
+  
+  <xsl:template mode="html2dbk" priority="2"
+    match="html:div[not(@data-type)]/html:*[matches(local-name(), '^h\d$')]">
+    <bridgehead>
+      <xsl:apply-templates select="@* except @class, (@class, parent::*/@class)[1], node()" mode="#current"/>
+    </bridgehead>
   </xsl:template>
 
   <xsl:template match="html:figure" mode="html2dbk">
@@ -398,7 +399,9 @@
   </xsl:template>
   
   <xsl:template match="html:a[@data-type eq 'indexterm'][@data-startref]" mode="html2dbk" priority="3">
-    <indexterm startref="{@data-startref}" class="endofrange"/>
+    <xsl:if test="@data-startref = root(.)//html:a[@data-type eq 'indexterm']/@id">
+      <indexterm startref="{@data-startref}" class="endofrange"/>
+    </xsl:if>
   </xsl:template>
   
   <xsl:template match="html:a[@data-type eq 'indexterm']/@data-primary" mode="html2dbk">
