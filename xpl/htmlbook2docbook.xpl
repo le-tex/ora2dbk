@@ -113,8 +113,38 @@
     <p:variable name="input-ext" select="replace($input-uri, '^.+\.', '')"/>
 
     <p:choose name="read">
-      <p:when test="$input-ext = 'json'">
+      <p:when test="$input-ext = 'zip'">
         <p:output port="result" primary="true" sequence="true"/>
+        <letex:unzip>
+          <p:with-option name="zip" select="/*/@os-path">
+            <p:pipe port="result" step="file-uri"/>
+          </p:with-option>
+          <p:with-option name="dest-dir" select="replace(/*/@os-path, '\.zip$', '.dbk/')">
+            <p:pipe port="result" step="file-uri"/>
+          </p:with-option>
+          <p:with-option name="overwrite" select="'yes'" />
+        </letex:unzip>
+        <p:directory-list include-filter=".*\.json">
+          <p:with-option name="path" select="/*/@xml:base"/>
+        </p:directory-list>
+        <letex:store-debug pipeline-step="zip-in/dirlist">
+          <p:with-option name="active" select="$debug"/>
+          <p:with-option name="base-uri" select="$debug-dir-uri"/>
+        </letex:store-debug>
+        <!--<cx:message>
+          <p:with-option name="message" select="'MMMMMMMMMMMMMMMMM ', resolve-uri(/*/c:file[1]/@name, base-uri(/c:directory))"></p:with-option>
+        </cx:message>-->
+        <letex:process-atlas front-end="true" name="recursive-json-processing">
+          <p:with-option name="input" select="resolve-uri(/*/c:file[1]/@name, base-uri(/c:directory))"/>
+          <p:input port="xsl">
+            <p:pipe port="xsl" step="process-atlas"/>
+          </p:input>
+          <p:with-option name="debug" select="$debug"/>
+          <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
+        </letex:process-atlas>
+      </p:when>
+      <p:when test="$input-ext = 'json'">
+        <p:output port="result" primary="true"/>
         <p:add-attribute attribute-name="href" match="/*">
           <p:documentation>Unfortunately, we have to revert to http-request the local file, because apparently we cannot p:load
             the JSON file. Even if we could, it’s still unclear whether transparent JSON parsing would work
@@ -131,21 +161,16 @@
           <p:with-option name="base-uri" select="$debug-dir-uri"/>
         </letex:store-debug>
         <p:http-request name="get-json"/>
-        <letex:store-debug pipeline-step="json/read">
-          <p:with-option name="active" select="$debug"/>
-          <p:with-option name="base-uri" select="$debug-dir-uri"/>
-        </letex:store-debug>
         <p:for-each name="files-iteration">
           <p:iteration-source select="/c:body/j:json/j:files/j:item"/>
-          <!--<cx:message>
-            <p:with-option name="message" select="'HHHHHHHHHHHHHHHHHHHHHHH ', ."></p:with-option>
-          </cx:message>-->
           <letex:process-atlas front-end="false" name="recursive-html-processing">
             <p:documentation>Recursion FTW!</p:documentation>
             <p:with-option name="input" select="resolve-uri(., $input-uri)"/>
             <p:input port="xsl">
               <p:pipe port="xsl" step="process-atlas"/>
             </p:input>
+            <p:with-option name="debug" select="$debug"/>
+            <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
           </letex:process-atlas>
           <p:filter select="/c:files/html:body"/>
         </p:for-each>
@@ -180,7 +205,7 @@
     </p:add-attribute>
 
     <p:choose name="process-html-collection">
-      <p:when test="$front-end = 'true'">
+      <p:when test="$front-end = 'true' and not($input-ext = 'zip')">
         <p:output port="result" primary="true"/>
         <p:output port="dbk4">
           <p:pipe port="result" step="dbk4"/>
