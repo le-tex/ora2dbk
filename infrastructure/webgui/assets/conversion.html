@@ -1,0 +1,26 @@
+<h3>Atlas Conversion to DocBook 4.5</h3>
+<p>You may upload either single HTML files or a Zip file that contains
+ JSON and HTML files on its top level (no directories in the Zip!).</p>
+<p>The JSON should contain a list called <code>files</code>, like this:</p>
+<pre>{
+  "branch": "master",
+  "files": [
+    "cover.html",
+    "titlepage.html",
+    "copyright.html",
+    "toc.html",
+    "ch01.html",
+    "ix.html",
+    "author_bio.html"
+  ],
+  …
+</pre>
+<p>The HTML files need only contain body content. The top-level element
+may be <code>section</code>, for example. It may be any kind of HTML 
+(XHTML, HTML5, …).</p>
+<p>The files will be read in order and then converted to a single DocBook 4.5 file
+that will then be split into individual files that correspond to the input files.
+There will be a container DocBook file that includes the individual files by 
+means of XInclude instructions.</p>
+<p>If you have questions or issues, please contact 
+  <a href="mailto:gerrit.imsieke@le-tex.de">Gerrit Imsieke</a>.</p>
