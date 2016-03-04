@@ -5,14 +5,14 @@
   xmlns:html="http://www.w3.org/1999/xhtml"
   xmlns:xi="http://www.w3.org/2001/XInclude"
   xmlns:xiout="bogo"
-  xmlns:htmltable="http://www.le-tex.de/namespace/htmltable"
-  xmlns:html2hub = "http://www.le-tex.de/namespace/html2hub"
+  xmlns:htmltable="http://transpect.io/htmltable"
+  xmlns:html2hub = "http://transpect.io/html2hub"
   xmlns:dbk="http://docbook.org/ns/docbook"
   xmlns="http://docbook.org/ns/docbook"
   exclude-result-prefixes="#all"
   version="2.0">
 
-  <xsl:import href="http://transpect.le-tex.de/html2hub/xsl/tables.xsl"/>
+  <xsl:import href="http://transpect.io/html2hub/xsl/tables.xsl"/>
 
   <xsl:param name="debug" select="'0'"/>
 
@@ -151,6 +151,7 @@
   <xsl:template match="html:div/@data-type[. = $htmlbook-div-types-to-docbook-element]" mode="html2dbk"/>
 
   <xsl:template name="create-para-wrapper-for-inline-content">
+    <xsl:param name="content" as="node()*" select="node()"/>
     <xsl:choose>
       <xsl:when test="text()[normalize-space()] or 
                       html:*[local-name() = $html5-inline-element-localnames]">
@@ -222,6 +223,12 @@
       <xsl:apply-templates select="@*, node()" mode="#current"/>
     </programlisting>
   </xsl:template>
+  
+  <xsl:template match="html:dfn" mode="html2dbk">
+    <firstterm>
+      <xsl:apply-templates select="@*, node()" mode="#current"/>
+    </firstterm>
+  </xsl:template>
 
   <xsl:template match="@data-programming-language" mode="html2dbk">
     <xsl:attribute name="language" select="."/>
@@ -255,16 +262,16 @@
   <xsl:template match="html:dl" mode="html2dbk">
     <variablelist>
       <xsl:apply-templates select="@*" mode="#current"/>
-      <xsl:for-each-group select="node()" group-starting-with="dt">
+      <xsl:for-each-group select="*" group-starting-with="html:dt">
         <varlistentry>
           <term>
-            <xsl:apply-templates select="current-group()[1]" mode="#current"/>
+            <xsl:apply-templates select="current-group()[1]/node()" mode="#current"/>
           </term>
-          <xsl:for-each select="current-group()[position() gt 1]">
-            <listitem>
-              <xsl:call-template name="create-para-wrapper-for-inline-content"/>
-            </listitem>
-          </xsl:for-each>
+          <listitem>
+            <xsl:call-template name="create-para-wrapper-for-inline-content">
+              <xsl:with-param name="content" select="current-group()[position() gt 1]"/>
+            </xsl:call-template>
+          </listitem>
         </varlistentry>
       </xsl:for-each-group>
     </variablelist>

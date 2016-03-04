@@ -2,36 +2,37 @@
 scm = git
 
 [calabash]
-repository = https://subversion.le-tex.de/common/calabash/
+repository = https://subversion.le-tex.de/common/github-mirror/calabash/
 scm = svn
 path = calabash
 
-[xproc-util/file-uri]
-repository = https://subversion.le-tex.de/common/xproc-util/file-uri/
+[xproc-util]
+repository = https://github.com/transpect/xproc-util/trunk/
 scm = svn
-path = xproc-util/file-uri
+path = xproc-util
+
+[css-tools]
+repository = https://github.com/transpect/css-tools/trunk/
+scm = svn
+path = css-tools
 
 [schema/dbk45]
 repository = https://subversion.le-tex.de/common/schema/docbook/4.5/
 scm = svn
 path = schema/dbk45
 
-[html-tables]
-repository = https://subversion.le-tex.de/common/html-tables/lib/
+[htmltables]
+repository = https://github.com/transpect/htmltables/trunk
 scm = svn
-path = html-tables
+path = htmltables
 
-[xslt-util/lengths]
-repository = https://subversion.le-tex.de/common/letex-util/lengths/
+[xslt-util]
+repository = https://github.com/transpect/xslt-util/trunk/
 scm = svn
-path = xslt-util/lengths
+path = xslt-util
 
 [html2hub]
-repository = https://subversion.le-tex.de/common/html2hub/lib/
+repository = https://github.com/transpect/html2hub/trunk/
 scm = svn
 path = html2hub
 
-[xproc-util/store-debug]
-repository = https://subversion.le-tex.de/common/xproc-util/store-debug/
-scm = svn
-path = xproc-util/store-debug
