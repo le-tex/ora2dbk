@@ -7,7 +7,7 @@ We’re not doing this because we’re die-hard DocBook proponents. It’s for G
 ## Prerequisites
 
  * ext (see http://nopugs.com/ext-tutorial)
- * Java 1.6 or newer (OpenJDK does not seem to work)
+ * Java 1.7 or newer
 
 ## Initial Checkout
 
